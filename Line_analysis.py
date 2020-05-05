@@ -38,14 +38,14 @@ emojis_pattern=re.compile('|'.join(emojis))
 
 
 
-sender1 = '北岡 有以'
-warabi = 'ファラビ (ワラビ)'
+sender1 = 'put the name of the sender1'
+sender2 = 'put the name of the sender2'
 
 #Function that loads the conversation from a txt file. no need to use the specific tags \n and \t for
 #Line as the readlines functions already split correctly the conversations line by line for other SNS apps
 #The use of the tags \n and \t might be needed (I guess). 
 def conversation_load():
-    file = open('[LINE] Chat avec 北岡 有以.txt', 'r')
+    file = open('PUT THE TEXT FILE OF YOUR LINE CONVERSATION', 'r')
     if file.mode=='r':
         content=file.readlines()
     for line in content:
@@ -93,15 +93,15 @@ class conversation:
 
 	def strict_reply_pd(self):
 		df=conversation.clean_conversation(self)
-		sender1_strict_reply= df.loc[(df['Sender'] == sender1) & (df['Sender'].shift(1)==warabi)]
-		warabi_strict_reply=df.loc[(df['Sender'] == warabi) & (df['Sender'].shift(1)==sender1)]
+		sender1_strict_reply= df.loc[(df['Sender'] == sender1) & (df['Sender'].shift(1)==sender2)]
+		warabi_strict_reply=df.loc[(df['Sender'] == sender2) & (df['Sender'].shift(1)==sender1)]
 		if df.iloc[0]['Sender']==sender1:
-			result= sender1_strict_reply.combine_first(warabi_strict_reply)
+			result= sender1_strict_reply.combine_first(sender2_strict_reply)
 		else:
 			result= warabi_strict_reply.combine_first(sender1_strict_reply)   
 		return result
 
-#functions that gives the time at which the message was sent. 
+#functions that gives the time at which the message was sent.
 	def response_time_between_messages(self, sender)-> list:
 		df=conversation.strict_reply_pd(self)
 		List=list(df['Date']+df['Time'])
@@ -109,12 +109,12 @@ class conversation:
 		if df.iloc[0]['Sender']==sender1:
 			response_sender1=[List[i+1]-List[i] for i in range(1, len(List)-1, 2)]
 			response_sender2=[List[i+1]-List[i] for i in range(0, len(List)-1, 2)]
-		if df.iloc[0]['Sender']==warabi:
+		if df.iloc[0]['Sender']==sender2:
 			response_sender2=[ List[i+1]-List[i] for i in range(1, len(List)-1, 2)]
 			response_sender1=[ List[i+1]-List[i] for i in range(0, len(List)-1, 2)]
 		if sender==sender1:
 			return [response.seconds for response in response_sender1]
-		if sender==warabi:
+		if sender==sender2:
 			return [response.seconds for response in response_sender2]
 
 #function that select message from a specific sender and return a string. 
@@ -176,14 +176,7 @@ class conversation:
 
 
 
-
-#LINE_talk= conversation(conversation=conversation_load(), sender1=sender1, sender2=warabi)
-
-
-
-
 if __name__ == '__main__':
-	conversation_load()
-	conversation(conversation=conversation_load(), sender1=sender1, sender2=warabi)
+	output=conversation(conversation=conversation_load(), sender1=sender1, sender2=sender2)
 
 
